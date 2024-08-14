@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 //import { RouterOutlet } from '@angular/router';
 import { OAuthService } from 'angular-oauth2-oidc';
-import { authCodeFlowConfig } from './app.oidc';
+//import { authCodeFlowConfig } from './app.oidc';
 import { Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { JwksValidationHandler } from 'angular-oauth2-oidc-jwks';
+//import { JwksValidationHandler } from 'angular-oauth2-oidc-jwks';
+import { OidcService, demoConfig, googleConfig } from './core/services';
 
 @Component({
   selector: 'app-root',
@@ -18,23 +19,29 @@ export class AppComponent implements OnInit {
 
   constructor(//private oidcService: OidcService,
     private router: Router,
-    private oauthService: OAuthService
+    private oauthService: OAuthService,
+    private oidcService: OidcService
   ) {
-    //this.authUrl = this.oauthService.getAuthUrl();
-    //console.log("this.authUrl", this.authUrl);
+    this.oidcService.loadDiscoveryDocument(googleConfig)
+      .subscribe({
+        next: (cmd) => {
+          console.log('Discovery document loaded and login attempted');
+          //this.oidcService.initCodeFlow();
+        },
+        error: (err) => {
+          console.error('Error loading discovery document', err);
+        }
+      });
 
-    this.oauthService.configure(authCodeFlowConfig);
-    this.oauthService.loadDiscoveryDocumentAndTryLogin();
-
+    //this.oauthService.configure(authCodeFlowConfig);
+    //this.oauthService.loadDiscoveryDocumentAndTryLogin();
 
     //this.oauthService.initCodeFlow();
     //https://idsvr4.azurewebsites.net/consent?returnUrl=%2Fconnect%2Fauthorize%2Fcallback%3Fresponse_type%3Dcode%26client_id%3Dspa%26state%3DTUFPUFNKY2J1U3RQbVpuTTFLWkJ1SC1ReTZwdnN4M2lZV2dsaWVQVEVFY3pN%26redirect_uri%3Dhttp%253A%252F%252Flocalhost%253A4200%252Findex.html%26scope%3Dopenid%2520profile%2520email%2520offline_access%2520api%26code_challenge%3D0NnLUeIDC-MQNjsuyTIylbhK9WZGgJlsWIZIdkffPdI%26code_challenge_method%3DS256%26nonce%3DTUFPUFNKY2J1U3RQbVpuTTFLWkJ1SC1ReTZwdnN4M2lZV2dsaWVQVEVFY3pN
-
     //this.oauthService.initLoginFlow();
     //https://idsvr4.azurewebsites.net/consent?returnUrl=%2Fconnect%2Fauthorize%2Fcallback%3Fresponse_type%3Dcode%26client_id%3Dspa%26state%3Da3dZZ0VPc2hpV3dQSEQ2Q0ZsQjZKejRobkl3WlZVYkFvWFhaU2hqbjlnZ3Ey%26redirect_uri%3Dhttp%253A%252F%252Flocalhost%253A4200%252Findex.html%26scope%3Dopenid%2520profile%2520email%2520offline_access%2520api%26code_challenge%3DsLb26qjs4hvRZJlOHLQYxijdOMyNrcAOqGf1IceY060%26code_challenge_method%3DS256%26nonce%3Da3dZZ0VPc2hpV3dQSEQ2Q0ZsQjZKejRobkl3WlZVYkFvWFhaU2hqbjlnZ3Ey
 
     //this.oauthService.setupAutomaticSilentRefresh();
-
     /*this.oauthService.events
       .pipe(filter((e) => e.type === 'token_received'))
       .subscribe((_) => {

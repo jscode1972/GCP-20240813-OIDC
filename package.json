@@ -20,6 +20,7 @@
     "@angular/router": "^17.3.0",
     "angular-oauth2-oidc": "^17.0.2",
     "angular-oauth2-oidc-jwks": "^17.0.2",
+    "crypto": "^1.0.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"
