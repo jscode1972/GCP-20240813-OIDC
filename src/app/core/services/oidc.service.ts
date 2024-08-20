@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap, from, of, Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { AuthConfig } from '../models';
+import { AuthConfig } from '../secret';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +13,7 @@ export class OidcService {
   private authConfig!: AuthConfig;
   private discoveryDocument: any;
   //private codeVerifier: string = '';
+  private userInfo?: any;
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -25,6 +26,7 @@ export class OidcService {
         return this.tryLogin();
       })*/
       tap((document: any) => {
+        console.log(document);
         this.discoveryDocument = document;
       }),
       switchMap(() => this.tryLogin())
@@ -99,14 +101,29 @@ export class OidcService {
     const storedCodeVerifier = sessionStorage.getItem('codeVerifier');
     sessionStorage.removeItem('codeVerifier');
     // 发送授权码到后端
-    const backendExchangeUrl = 'http://localhost:8080/exchange'; // 后端处理授权码交换的 API 端点
+    const backendExchangeUrl = 'http://localhost:9000/oidc/exchange'; // 后端处理授权码交换的 API 端点
     return this.http.post(backendExchangeUrl, { code: code, code_verifier : storedCodeVerifier }).pipe(
-      switchMap((tokens: any) => {
+      switchMap((resp: any) => {
         // 在这里处理 tokens，例如保存到本地存储
-        console.log('Tokens received', tokens);
+        console.log('Tokens received', resp);
         this.router.navigate(['/home']);
-        //return from([]);
-        return of(null);
+        return of(resp);
+        /*const headers = new HttpHeaders().set('Authorization', `Bearer ${resp.access_token}`);
+        // Fetch user info from the OIDC provider's UserInfo endpoint
+        return this.http.get(this.discoveryDocument.userinfo_endpoint, { headers }).pipe(
+          switchMap((userInfo: any) => {
+            // Handle the user info here
+            console.log('User info received', userInfo);
+            this.userInfo = userInfo;
+            this.router.navigate(['/home']);
+            return of(userInfo);
+          })
+        );*/
+        // Oauth 同意畫面 => 要手動加入 API
+        // 加入測試人員 wphuang@gmail.com
+        // 另外 access_token 要怎麼儲存
+        // sessionStorage.setItem('access_token', accessToken);
+        //return this.http.get("https://www.googleapis.com/calendar/v3/users/me/calendarList", { headers }).pipe(
       })
     );
   }
@@ -129,6 +146,14 @@ export class OidcService {
 
       window.location.href = `${authorizationEndpoint}?${params.toString()}`;
     });
+  }
+
+  public get email(): string|null {
+    return this.userInfo?.email;
+  }
+
+  public get name(): string|null {
+    return this.userInfo?.name;
   }
 }
 

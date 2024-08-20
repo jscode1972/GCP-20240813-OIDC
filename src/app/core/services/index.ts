@@ -1,2 +1,2 @@
 export * from './oidc.service';
-export * from './oidc.secret';
+export * from './calendar.service';

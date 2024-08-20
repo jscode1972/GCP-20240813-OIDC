@@ -43,4 +43,4 @@ Thumbs.db
 
 
 # secret
-oidc.secret.ts
+oidc.google.ts

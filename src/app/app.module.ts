@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
-
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 //
 import { RouterOutlet, Routes, RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
-import { HttpClientModule } from '@angular/common/http';
 import { OAuthModule, OAuthService, UrlHelperService } from 'angular-oauth2-oidc';
 import { routes } from './app.routes';
+import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -25,6 +25,7 @@ import { routes } from './app.routes';
   providers: [
     OAuthService, UrlHelperService, // 如果需要，可以在这里提供服务
     // 其他服务提供者
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],
   //schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   bootstrap: [

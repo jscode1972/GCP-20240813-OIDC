@@ -1,6 +1,6 @@
 <button (click)="login()">Login</button>
 <button (click)="logout()">Logout</button>
-<button (click)="userinfo()">Userinfo</button>
+<button (click)="showCalendar()">showCalendar</button>
 
 <!--The content below is only a placeholder and can be replaced.-->
 <!--div *ngIf="idToken"-->
@@ -9,17 +9,32 @@
   </div>
 
   <h2>User</h2>
-  <p>{{ userName }}</p>
-
-  <h2>Id-Token</h2>
-  <p>{{ idToken }}</p>
-
-  <h2>Access Token</h2>
-  <p>{{ accessToken }}</p>
+  <p>{{ userName }}, {{ email }}</p>
 
   <p>
     <button (click)="refresh()">Refresh</button>
   </p>
+
+<!-- calendar.component.html -->
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Kind</th>
+      <th>Summary</th>
+      <th>Time Zone</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let calendar of calendars">
+      <td><a href="#" (click)="onIdClick(calendar.id); $event.preventDefault()">{{ calendar.id }}</a></td>
+      <td>{{ calendar.kind }}</td>
+      <td>{{ calendar.summary }}</td>
+      <td>{{ calendar.timeZone }}</td>
+    </tr>
+  </tbody>
+</table>
+
 <!--/div-->
 
 <router-outlet />

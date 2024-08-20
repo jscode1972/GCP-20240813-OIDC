@@ -3,9 +3,11 @@ import { Component, OnInit } from '@angular/core';
 import { OAuthService } from 'angular-oauth2-oidc';
 //import { authCodeFlowConfig } from './app.oidc';
 import { Router } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 //import { JwksValidationHandler } from 'angular-oauth2-oidc-jwks';
-import { OidcService, demoConfig, googleConfig } from './core/services';
+import { OidcService, CalendarService } from './core/services';
+import { demoConfig, googleConfig } from './core/secret';
+import { CalendarListEntry } from './core/models';
 
 @Component({
   selector: 'app-root',
@@ -17,10 +19,12 @@ import { OidcService, demoConfig, googleConfig } from './core/services';
 export class AppComponent implements OnInit {
   title = 'GCP-20240813-OIDC';
 
-  constructor(//private oidcService: OidcService,
+  calendars?: CalendarListEntry[];
+
+  constructor(
     private router: Router,
-    private oauthService: OAuthService,
-    private oidcService: OidcService
+    private oidcService: OidcService,
+    private calendarService: CalendarService,
   ) {
     this.oidcService.loadDiscoveryDocument(googleConfig)
       .subscribe({
@@ -32,68 +36,55 @@ export class AppComponent implements OnInit {
           console.error('Error loading discovery document', err);
         }
       });
-
-    //this.oauthService.configure(authCodeFlowConfig);
-    //this.oauthService.loadDiscoveryDocumentAndTryLogin();
-
-    //this.oauthService.initCodeFlow();
-    //https://idsvr4.azurewebsites.net/consent?returnUrl=%2Fconnect%2Fauthorize%2Fcallback%3Fresponse_type%3Dcode%26client_id%3Dspa%26state%3DTUFPUFNKY2J1U3RQbVpuTTFLWkJ1SC1ReTZwdnN4M2lZV2dsaWVQVEVFY3pN%26redirect_uri%3Dhttp%253A%252F%252Flocalhost%253A4200%252Findex.html%26scope%3Dopenid%2520profile%2520email%2520offline_access%2520api%26code_challenge%3D0NnLUeIDC-MQNjsuyTIylbhK9WZGgJlsWIZIdkffPdI%26code_challenge_method%3DS256%26nonce%3DTUFPUFNKY2J1U3RQbVpuTTFLWkJ1SC1ReTZwdnN4M2lZV2dsaWVQVEVFY3pN
-    //this.oauthService.initLoginFlow();
-    //https://idsvr4.azurewebsites.net/consent?returnUrl=%2Fconnect%2Fauthorize%2Fcallback%3Fresponse_type%3Dcode%26client_id%3Dspa%26state%3Da3dZZ0VPc2hpV3dQSEQ2Q0ZsQjZKejRobkl3WlZVYkFvWFhaU2hqbjlnZ3Ey%26redirect_uri%3Dhttp%253A%252F%252Flocalhost%253A4200%252Findex.html%26scope%3Dopenid%2520profile%2520email%2520offline_access%2520api%26code_challenge%3DsLb26qjs4hvRZJlOHLQYxijdOMyNrcAOqGf1IceY060%26code_challenge_method%3DS256%26nonce%3Da3dZZ0VPc2hpV3dQSEQ2Q0ZsQjZKejRobkl3WlZVYkFvWFhaU2hqbjlnZ3Ey
-
-    //this.oauthService.setupAutomaticSilentRefresh();
-    /*this.oauthService.events
-      .pipe(filter((e) => e.type === 'token_received'))
-      .subscribe((_) => {
-        console.log('AppComponent-token_received');
-        this.oauthService.loadUserProfile()
-          .then(() => {
-            //this.router.navigate(['/home']);
-          });
-      });*/
   }
 
   ngOnInit(): void {
-    /*// 在進行身份驗證之前檢查是否已有有效的存取令牌
-    if (!this.oauthService.hasValidAccessToken()) {
-      console.log('hasValidAccessToken-false');
-      //this.oauthService.initCodeFlow();
-      this.oauthService.loadDiscoveryDocumentAndTryLogin();
-    } else {
-      console.log('hasValidAccessToken-true');
-      this.oauthService.loadUserProfile();
-    }*/
+
   }
 
   login() {
     console.log("login");
-    //this.oidcService.login();
-    this.oauthService.initCodeFlow();
+    this.oidcService.initCodeFlow();
   }
 
   logout() {
-    this.oauthService.logOut();
+   //this.oidcService.logOut();
   }
 
   userinfo() {
-    this.oauthService.loadUserProfile();
+    //this.oidcService.loadUserProfile();
   }
 
-  get userName(): string|null {
+  showCalendar() {
+    this.calendarService.getList()
+      .subscribe((resp) => {
+        console.log(resp);
+        this.calendars = resp.calendars.items;
+      });
+  }
+
+  onIdClick(id: string) {
+    this.calendarService.getCalendar(id)
+      .subscribe((resp) => {
+        console.log(resp);
+      });
+  }
+
+  /*get userName(): string|null {
     const claims = this.oauthService.getIdentityClaims();
     if (!claims) return null;
     return claims['given_name'];
+  }*/
+
+  get userName(): string|null {
+    return this.oidcService.name;
   }
 
-  get idToken(): string {
-    return this.oauthService.getIdToken();
-  }
-
-  get accessToken(): string {
-    return this.oauthService.getAccessToken();
+  get email(): string|null {
+    return this.oidcService.email;
   }
 
   refresh() {
-    this.oauthService.refreshToken();
+    //this.oauthService.refreshToken();
   }
 }

@@ -1,1 +1,1 @@
-export * from './oidc.model';
+export * from './calendar.model';
